@@ -1,9 +1,8 @@
 package nl.dantevg.dynmapexport
 
+import nl.dantevg.dynmapexport.location.WorldCoords
 import org.bukkit.Bukkit
 import org.bukkit.command.*
-import java.util.*
-import java.util.stream.Collectors
 
 class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, TabCompleter {
 
@@ -35,13 +34,13 @@ class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, T
                 sender.sendMessage("Invalid number")
                 return false
             }
-            val path: String = try {
+            val path: String? = try {
                 plugin.downloader.downloadTile(world, map, x, z, zoom)
             } catch (e: IllegalArgumentException) {
                 sender.sendMessage("Could not save tile: " + e.message)
                 return false
             }
-            sender.sendMessage("Saved tile at $path")
+            sender.sendMessage(if (path != null) "Saved tile at $path" else "Could not save tile (check console)")
             return true
         } else if ((args.size == 6 || args.size == 7) && args[0] == "worldtomap") {
             val worldName = args[1]
@@ -61,7 +60,7 @@ class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, T
             }
             val worldCoords = WorldCoords(x, y, z)
             val map: DynmapWebAPI.Map = getMapFromWorldMapNames(sender, worldName, mapName) ?: return false
-            val tileCoords: TileCoords = worldCoords.toTileCoords(map, zoom)
+            val tileCoords = worldCoords.toTileCoords(map, zoom)
             sender.sendMessage(java.lang.String.format("%s is in tile %s", worldCoords, tileCoords))
             return true
         }
@@ -73,34 +72,27 @@ class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, T
         command: Command,
         label: String,
         args: Array<out String>
-    ): MutableList<String>? {
+    ): List<String>? {
         if (args.size == 1) {
-            return Arrays.asList("now", "export", "reload", "debug", "worldtomap")
+            return listOf("now", "export", "reload", "debug", "worldtomap")
         } else if (args.size == 2 && (args[0] == "export" || args[0] == "worldtomap")) {
             // Suggest world
-            return plugin.worldConfiguration.worlds.stream()
-                .map { world -> world.name }
-                .collect(Collectors.toList())
+            return plugin.worldConfiguration?.worlds?.map { it.name }
         } else if (args.size == 3 && (args[0] == "export" || args[0] == "worldtomap")) {
             // Suggest map
-            val world: World = plugin.worldConfiguration.getWorldByName(args[1])
-            return if (world != null) {
-                world.maps.stream().map { map -> map.name }.collect(Collectors.toList())
-            } else {
-                emptyList<String>()
-            }
+            return plugin.worldConfiguration?.getWorldByName(args[1])?.maps?.map { it.name }.orEmpty()
         }
-        return emptyList<String>()
+        return emptyList()
     }
-    
-    private fun getMapFromWorldMapNames(sender: CommandSender, worldName: String, mapName: String): DynmapWebAPI.Map {
+
+    private fun getMapFromWorldMapNames(sender: CommandSender, worldName: String, mapName: String): DynmapWebAPI.Map? {
         assert(plugin.worldConfiguration != null)
-        val world: World = plugin.worldConfiguration.getWorldByName(worldName)
+        val world = plugin.worldConfiguration?.getWorldByName(worldName)
         if (world == null) {
             sender.sendMessage("no world with name $worldName")
             return null
         }
-        val map: DynmapWebAPI.Map = world.getMapByName(mapName)
+        val map = world.getMapByName(mapName)
         if (map == null) {
             sender.sendMessage("world $worldName has no map with name $mapName")
             return null

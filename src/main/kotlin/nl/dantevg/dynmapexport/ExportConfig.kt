@@ -13,7 +13,7 @@ class ExportConfig {
     val from: TileCoords
     val to: TileCoords
 
-    constructor(world: DynmapWebAPI.World, map: DynmapWebAPI.Map, zoom: Int, from: TileCoords, to: TileCoords) {
+    constructor(world: DynmapWebAPI.World, map: DynmapWebAPI.Map, zoom: Int, from: TileCoords, to: TileCoords = from) {
         this.world = world
         this.map = map
         this.zoom = zoom
@@ -21,12 +21,28 @@ class ExportConfig {
         this.to = TileCoords(max(from.x, to.x), max(from.y, to.y)).ceilToZoom(zoom)
     }
 
-    constructor(world: DynmapWebAPI.World, map: DynmapWebAPI.Map, zoom: Int, tile: TileCoords) :
-            this(world, map, zoom, tile, tile)
+    constructor(
+        world: DynmapWebAPI.World,
+        map: DynmapWebAPI.Map,
+        zoom: Int,
+        from: WorldCoords,
+        to: WorldCoords = from
+    ) : this(world, map, zoom, from.toTileCoords(map, zoom), to.toTileCoords(map, zoom))
 
-    constructor(world: DynmapWebAPI.World, map: DynmapWebAPI.Map, zoom: Int, from: WorldCoords, to: WorldCoords) :
-            this(world, map, zoom, from.toTileCoords(map, zoom), to.toTileCoords(map, zoom))
+    /**
+     * Get all tile locations from this export config.
+     *
+     * @return a list of tiles that are within the range from the config
+     */
+    fun toTileLocations(): List<TileCoords> {
+        val tiles: MutableList<TileCoords> = ArrayList()
 
-    constructor(world: DynmapWebAPI.World, map: DynmapWebAPI.Map, zoom: Int, coords: WorldCoords) :
-            this(world, map, zoom, coords, coords)
+        for (x in from.x..to.x step (1 shl zoom)) {
+            for (y in from.y..to.y step (1 shl zoom)) {
+                tiles += TileCoords(x, y)
+            }
+        }
+
+        return tiles
+    }
 }

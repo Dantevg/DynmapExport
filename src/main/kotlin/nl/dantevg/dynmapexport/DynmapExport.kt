@@ -2,6 +2,7 @@ package nl.dantevg.dynmapexport
 
 import com.google.gson.Gson
 import nl.dantevg.dynmapexport.location.WorldCoords
+import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.IOException
@@ -10,14 +11,15 @@ import java.net.ConnectException
 import java.net.MalformedURLException
 import java.net.URL
 import java.time.Instant
-import java.util.*
 import java.util.logging.Level
 
 class DynmapExport : JavaPlugin() {
-    private lateinit var worldConfiguration: DynmapWebAPI.Configuration
-    private lateinit var downloader: Downloader
+    private lateinit var tileCombiner: TileCombiner
     private lateinit var exportConfigs: List<ExportConfig>
 
+    var worldConfiguration: DynmapWebAPI.Configuration? = null
+    lateinit var imageTresholdCache: ImageTresholdCache
+    lateinit var downloader: Downloader
     lateinit var dynmapHost: String
 
     override fun onEnable() {
@@ -29,10 +31,14 @@ class DynmapExport : JavaPlugin() {
         getCommand("dynmapexport")?.setExecutor(command)
         getCommand("dynmapexport")?.setTabCompleter(command)
 
-        if (getDynmapConfiguration()?.let { worldConfiguration = it } == null) {
-            exportConfigs = ArrayList()
+        imageTresholdCache = ImageTresholdCache(this)
+        tileCombiner = TileCombiner(this)
+
+        worldConfiguration = getDynmapConfiguration()
+        exportConfigs = if (worldConfiguration != null) {
+            config.getMapList("exports").mapNotNull { getExportConfig(it!!) }
         } else {
-            exportConfigs = config.getMapList("exports").mapNotNull { getExportConfig(it!!) }
+            ArrayList()
         }
     }
 
@@ -54,6 +60,18 @@ class DynmapExport : JavaPlugin() {
         commandSender?.sendMessage("Exported $nExported configs, skipped ${exportConfigs.size - nExported}")
         return nExported
     }
+
+    fun reload() {
+        logger.log(Level.INFO, "Reload: disabling plugin")
+        isEnabled = false
+        Bukkit.getScheduler().cancelTasks(this)
+        logger.log(Level.INFO, "Reload: re-enabling plugin")
+        reloadConfig()
+        isEnabled = true
+        logger.log(Level.INFO, "Reload complete")
+    }
+
+    fun debug() = "Dynmap world configuration:\n$worldConfiguration"
 
     private fun getDynmapConfiguration(): DynmapWebAPI.Configuration? {
         try {
@@ -77,14 +95,19 @@ class DynmapExport : JavaPlugin() {
         val fromMap = exportMap["from"] as Map<String, Int>?
         val toMap = exportMap["to"] as Map<String, Int>?
 
-        if (!fromMap!!.containsKey("x") || !fromMap.containsKey("z")) {
+        if (fromMap == null || toMap == null) {
+            logger.log(Level.WARNING, "export needs field 'from' and 'to', ignoring this export")
+            return null
+        }
+
+        if (!fromMap.containsKey("x") || !fromMap.containsKey("z")) {
             logger.log(
                 Level.WARNING,
                 "export field 'from' needs to have at least fields 'x' and 'z', ignoring this export"
             )
             return null
         }
-        if (!toMap!!.containsKey("x") || !toMap.containsKey("z")) {
+        if (!toMap.containsKey("x") || !toMap.containsKey("z")) {
             logger.log(
                 Level.WARNING,
                 "export field 'to' needs to have at least fields 'x' and 'z', ignoring this export"
@@ -94,7 +117,7 @@ class DynmapExport : JavaPlugin() {
         val from = WorldCoords(fromMap["x"]!!, fromMap["y"] ?: Y_LEVEL, fromMap["z"]!!)
         val to = WorldCoords(toMap["x"]!!, toMap["y"] ?: Y_LEVEL, toMap["z"]!!)
 
-        val world = if (worldName != null) worldConfiguration.getWorldByName(worldName) else null
+        val world = if (worldName != null) worldConfiguration?.getWorldByName(worldName) else null
         if (world == null) {
             logger.log(Level.SEVERE, "$worldName is not a valid world, ignoring this export")
             return null

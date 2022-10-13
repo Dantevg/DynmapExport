@@ -1,1 +1,0 @@
-C:\Users\dante\Documents\Github\DynmapExportKotlin\src\main\kotlin\nl\dantevg\dynmapexport\DynmapExport.kt
