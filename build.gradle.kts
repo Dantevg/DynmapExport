@@ -1,37 +1,71 @@
+import kr.entree.spigradle.kotlin.spigot
+import kr.entree.spigradle.kotlin.spigotmc
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    idea
-    kotlin("jvm") version "1.7.10"
+	idea
+	kotlin("jvm") version "1.7.20"
+	id("com.github.johnrengelman.shadow") version "7.1.2"
+	id("kr.entree.spigradle") version "2.4.2"
 }
 
 group = "nl.dantevg"
-version = "1.0-SNAPSHOT"
+version = "1.0.0-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
-    mavenCentral()
-    mavenLocal()
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
-    maven("https://oss.sonatype.org/content/repositories/central")
+	mavenCentral()
+	mavenLocal()
+	spigotmc()
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
-    compileOnly("org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT")
-}
-
-tasks.test {
-    useJUnitPlatform()
+	implementation(kotlin("stdlib-jdk8"))
+	shadow(kotlin("stdlib-jdk8"))
+	
+	compileOnly(spigot("1.13.2"))
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+	kotlinOptions.jvmTarget = "1.8"
 }
 
-idea {
-    module { 
-        isDownloadJavadoc = true
-        isDownloadSources = true
-    }
+tasks.shadowJar {
+	minimize()
+	archiveClassifier.set("")
+}
+
+tasks.build {
+	dependsOn("shadowJar")
+}
+
+idea.module {
+	isDownloadJavadoc = true
+	isDownloadSources = true
+}
+
+spigot {
+	apiVersion = "1.13"
+	description = "Automatically export dynmap tiles periodically"
+	authors = listOf("RedPolygon")
+	website = "dantevg.nl/mods-plugins/DynmapExport"
+	softDepends = listOf("dynmap")
+	commands {
+		create("dynmapexport") {
+			description = "DynmapExport command"
+			usage = """
+                Usage:
+                /dynmapexport now
+                /dynmapexport export <world> <map> <x> <z> <zoom>
+                /dynmapexport reload
+                /dynmapexport worldtomap <world> <map> <x> <y> <z> [zoom]
+            """.trimIndent()
+			permission = "dynmapexport.*"
+		}
+	}
+	permissions {
+		create("dynmapexport.*") {
+			description = "Allows running /dynmapexport command"
+		}
+	}
 }
