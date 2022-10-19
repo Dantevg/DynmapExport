@@ -5,66 +5,90 @@ import org.bukkit.Bukkit
 import org.bukkit.command.*
 
 class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, TabCompleter {
-	
-	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-		if (args.size == 1 && args[0] == "now") {
-			Bukkit.getScheduler().runTaskAsynchronously(
-				plugin,
-				Runnable { plugin.export(if (sender is ConsoleCommandSender) null else sender) })
-			return true
-		} else if (args.size == 1 && args[0] == "reload") {
-			plugin.reload()
-			if (sender !is ConsoleCommandSender) sender.sendMessage("Reload complete")
-			return true
-		} else if (args.size == 1 && args[0] == "debug") {
-			sender.sendMessage(plugin.debug())
-			return true
-		} else if (args.size == 6 && args[0] == "export") {
-			// Export single
-			val world = args[1]
-			val map = args[2]
-			val x: Int
-			val z: Int
-			val zoom: Int
-			try {
-				x = args[3].toInt()
-				z = args[4].toInt()
-				zoom = args[5].toInt()
+	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean =
+		when {
+			args[0] == "now" && args.size == 1 -> commandNow(sender)
+			args[0] == "reload" && args.size == 1 -> commandReload(sender)
+			args[0] == "debug" && args.size == 1 -> commandDebug(sender)
+			args[0] == "export" && args.size == 6 -> try {
+				commandExport(
+					sender = sender,
+					world = args[1],
+					map = args[2],
+					x = args[3].toInt(),
+					z = args[4].toInt(),
+					zoom = args[5].toInt()
+				)
 			} catch (e: NumberFormatException) {
 				sender.sendMessage("Invalid number")
-				return false
+				false
 			}
-			val path: String? = try {
-				plugin.downloader.downloadTile(world, map, x, z, zoom)
-			} catch (e: IllegalArgumentException) {
-				sender.sendMessage("Could not save tile: " + e.message)
-				return false
-			}
-			sender.sendMessage(if (path != null) "Saved tile at $path" else "Could not save tile (check console)")
-			return true
-		} else if ((args.size == 6 || args.size == 7) && args[0] == "worldtomap") {
-			val worldName = args[1]
-			val mapName = args[2]
-			val x: Int
-			val y: Int
-			val z: Int
-			var zoom = 0
-			try {
-				x = args[3].toInt()
-				y = args[4].toInt()
-				z = args[5].toInt()
-				if (args.size == 7) zoom = args[6].toInt()
+			
+			args[0] == "worldtomap" && args.size in 6..7 -> try {
+				commandWorldtomap(
+					sender = sender,
+					worldName = args[1],
+					mapName = args[2],
+					x = args[3].toInt(),
+					y = args[4].toInt(),
+					z = args[5].toInt(),
+					zoom = args.getOrNull(6)?.toInt() ?: 0
+				)
 			} catch (e: NumberFormatException) {
 				sender.sendMessage("Invalid number")
-				return false
+				false
 			}
-			val worldCoords = WorldCoords(x, y, z)
-			val map: DynmapWebAPI.Map = getMapFromWorldMapNames(sender, worldName, mapName) ?: return false
-			val tileCoords = worldCoords.toTileCoords(map, zoom)
-			sender.sendMessage(java.lang.String.format("%s is in tile %s", worldCoords, tileCoords))
-			return true
+			
+			else -> false
 		}
-		return false
+	
+	private fun commandNow(sender: CommandSender): Boolean {
+		Bukkit.getScheduler().runTaskAsynchronously(
+			plugin,
+			Runnable { plugin.export(if (sender is ConsoleCommandSender) null else sender) }
+		)
+		return true
+	}
+	
+	private fun commandReload(sender: CommandSender): Boolean {
+		plugin.reload()
+		if (sender !is ConsoleCommandSender) sender.sendMessage("Reload complete")
+		return true
+	}
+	
+	private fun commandDebug(sender: CommandSender): Boolean {
+		sender.sendMessage(plugin.debug())
+		return true
+	}
+	
+	/**
+	 * Export a single configuration.
+	 */
+	private fun commandExport(sender: CommandSender, world: String, map: String, x: Int, z: Int, zoom: Int): Boolean {
+		val path: String? = try {
+			plugin.downloader.downloadTile(world, map, x, z, zoom)
+		} catch (e: IllegalArgumentException) {
+			sender.sendMessage("Could not save tile: " + e.message)
+			return false
+		}
+		sender.sendMessage(if (path != null) "Saved tile at $path" else "Could not save tile (check console)")
+		return true
+	}
+	
+	private fun commandWorldtomap(
+		sender: CommandSender,
+		worldName: String,
+		mapName: String,
+		x: Int,
+		y: Int,
+		z: Int,
+		zoom: Int
+	): Boolean {
+		val worldCoords = WorldCoords(x, y, z)
+		val map: DynmapWebAPI.Map = getMapFromWorldMapNames(sender, worldName, mapName) ?: return false
+		val tileCoords = worldCoords.toTileCoords(map, zoom)
+		sender.sendMessage(java.lang.String.format("%s is in tile %s", worldCoords, tileCoords))
+		return true
 	}
 	
 	override fun onTabComplete(
@@ -72,17 +96,16 @@ class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, T
 		command: Command,
 		label: String,
 		args: Array<out String>
-	): List<String>? {
-		if (args.size == 1) {
-			return listOf("now", "export", "reload", "debug", "worldtomap")
-		} else if (args.size == 2 && (args[0] == "export" || args[0] == "worldtomap")) {
-			// Suggest world
-			return plugin.worldConfiguration?.worlds?.map { it.name }
-		} else if (args.size == 3 && (args[0] == "export" || args[0] == "worldtomap")) {
-			// Suggest map
-			return plugin.worldConfiguration?.getWorldByName(args[1])?.maps?.map { it.name }.orEmpty()
-		}
-		return emptyList()
+	): List<String>? = when {
+		args.size == 1 -> listOf("now", "export", "reload", "debug", "worldtomap")
+		// Suggest world
+		args.size == 2 && (args[0] == "export" || args[0] == "worldtomap") ->
+			plugin.worldConfiguration?.worlds?.map { it.name }
+		// Suggest map
+		args.size == 3 && (args[0] == "export" || args[0] == "worldtomap") ->
+			plugin.worldConfiguration?.getWorldByName(args[1])?.maps?.map { it.name }.orEmpty()
+		
+		else -> emptyList()
 	}
 	
 	private fun getMapFromWorldMapNames(sender: CommandSender, worldName: String, mapName: String): DynmapWebAPI.Map? {
