@@ -8,9 +8,9 @@ import java.time.Instant
 import java.util.logging.Level
 import javax.imageio.ImageIO
 
-class TileCombiner(private val plugin: DynmapExport) {
-	fun combineAndSave(config: ExportConfig, instant: Instant): Boolean {
-		val result: BufferedImage = combine(config, instant) ?: return false
+class TileCombiner(private val plugin: DynmapExport, private val config: ExportConfig, private val instant: Instant) {
+	fun combineAndSave(): Boolean {
+		val result: BufferedImage = combine() ?: return false
 		val file = Paths.getLocalCombinedFile(plugin, config, instant)
 		try {
 			ImageIO.write(result, "png", file)
@@ -21,9 +21,9 @@ class TileCombiner(private val plugin: DynmapExport) {
 		}
 	}
 	
-	private fun combine(config: ExportConfig, instant: Instant): BufferedImage? {
-		val width = tileCoordsToPixelX(config, config.to) + PIXELS_PER_TILE
-		val height = tileCoordsToPixelY(config, config.to) + PIXELS_PER_TILE
+	private fun combine(): BufferedImage? {
+		val width = tileCoordsToPixelX(config.to) + PIXELS_PER_TILE
+		val height = tileCoordsToPixelY(config.from) + PIXELS_PER_TILE
 		
 		plugin.logger.log(Level.CONFIG, "Creating a ${width}x$height image from ${config.from} to ${config.to}")
 		
@@ -31,13 +31,13 @@ class TileCombiner(private val plugin: DynmapExport) {
 		val graphics = output.createGraphics()
 		
 		for (tile in config.toTileLocations()) {
-			if (!drawTile(config, instant, graphics, tile)) return null
+			if (!drawTile(graphics, tile)) return null
 		}
 		
 		return output
 	}
 	
-	private fun drawTile(config: ExportConfig, instant: Instant, graphics: Graphics2D, tile: TileCoords): Boolean {
+	private fun drawTile(graphics: Graphics2D, tile: TileCoords): Boolean {
 		val tileFile = Paths.getLocalTileFile(plugin, config, instant, tile)
 		val tileImage = try {
 			ImageIO.read(tileFile)
@@ -46,19 +46,19 @@ class TileCombiner(private val plugin: DynmapExport) {
 			return false
 		}
 		
-		val x = tileCoordsToPixelX(config, tile)
-		val y = tileCoordsToPixelY(config, tile)
+		val x = tileCoordsToPixelX(tile)
+		val y = tileCoordsToPixelY(tile)
 		graphics.drawImage(tileImage, x, y, null)
 		return true
 	}
 	
+	private fun tileCoordsToPixelX(tile: TileCoords): Int =
+		(tile.x - config.from.x) / (1 shl config.zoom) * PIXELS_PER_TILE
+	
+	private fun tileCoordsToPixelY(tile: TileCoords): Int =
+		(config.to.y - tile.y) / (1 shl config.zoom) * PIXELS_PER_TILE
+	
 	companion object {
 		const val PIXELS_PER_TILE = 128
-		
-		private fun tileCoordsToPixelX(config: ExportConfig, tile: TileCoords): Int =
-			(tile.x - config.from.x) / (1 shl config.zoom) * PIXELS_PER_TILE
-		
-		private fun tileCoordsToPixelY(config: ExportConfig, tile: TileCoords): Int =
-			(tile.y - config.from.y) / (1 shl config.zoom) * PIXELS_PER_TILE
 	}
 }

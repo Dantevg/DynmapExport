@@ -14,7 +14,6 @@ import java.time.Instant
 import java.util.logging.Level
 
 class DynmapExport : JavaPlugin() {
-	private lateinit var tileCombiner: TileCombiner
 	private lateinit var exportConfigs: List<ExportConfig>
 	
 	var worldConfiguration: DynmapWebAPI.Configuration? = null
@@ -33,7 +32,6 @@ class DynmapExport : JavaPlugin() {
 		
 		imageThresholdCache = ImageThresholdCache(this)
 		downloader = Downloader(this)
-		tileCombiner = TileCombiner(this)
 		
 		worldConfiguration = getDynmapConfiguration()
 		exportConfigs = if (worldConfiguration != null) {
@@ -51,7 +49,7 @@ class DynmapExport : JavaPlugin() {
 			val downloadedTiles = downloader.downloadTiles(exportConfig, now)
 			if (downloadedTiles > 0) {
 				nExported++
-				if (config.getBoolean("auto-combine") && tileCombiner.combineAndSave(exportConfig, now)) {
+				if (config.getBoolean("auto-combine") && TileCombiner(this, exportConfig, now).combineAndSave()) {
 					downloader.removeOldExportDirs(exportConfig)
 				}
 			}
