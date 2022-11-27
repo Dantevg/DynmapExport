@@ -18,7 +18,7 @@ class DynmapExport : JavaPlugin() {
 	private lateinit var exportConfigs: List<ExportConfig>
 	
 	var worldConfiguration: DynmapWebAPI.Configuration? = null
-	lateinit var imageTresholdCache: ImageTresholdCache
+	lateinit var imageThresholdCache: ImageThresholdCache
 	lateinit var downloader: Downloader
 	lateinit var dynmapHost: String
 	
@@ -31,7 +31,8 @@ class DynmapExport : JavaPlugin() {
 		getCommand("dynmapexport")?.setExecutor(command)
 		getCommand("dynmapexport")?.setTabCompleter(command)
 		
-		imageTresholdCache = ImageTresholdCache(this)
+		imageThresholdCache = ImageThresholdCache(this)
+		downloader = Downloader(this)
 		tileCombiner = TileCombiner(this)
 		
 		worldConfiguration = getDynmapConfiguration()
@@ -92,6 +93,7 @@ class DynmapExport : JavaPlugin() {
 		val worldName = exportMap["world"] as String?
 		val mapName = exportMap["map"] as String?
 		val zoom = exportMap["zoom"] as Int
+		val changeThreshold = exportMap["change-threshold"] as Double
 		val fromMap = exportMap["from"] as Map<String, Int>?
 		val toMap = exportMap["to"] as Map<String, Int>?
 		
@@ -129,7 +131,7 @@ class DynmapExport : JavaPlugin() {
 			return null
 		}
 		
-		return ExportConfig(world, map, zoom, from, to)
+		return ExportConfig(world, map, zoom, changeThreshold, from, to)
 	}
 	
 	companion object {

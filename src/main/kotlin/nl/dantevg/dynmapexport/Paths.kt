@@ -15,7 +15,7 @@ object Paths {
 	 *
 	 * [https://stackoverflow.com/a/39820917](https://stackoverflow.com/a/39820917)
 	 */
-	val instantFormat = DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'")
+	private val instantFormat = DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'")
 		.withZone(ZoneId.from(ZoneOffset.UTC))
 	
 	/**
@@ -58,8 +58,8 @@ object Paths {
 	fun getLocalCombinedFile(plugin: DynmapExport, config: ExportConfig, instant: Instant): File =
 		File(getLocalMapDir(plugin, config), instantFormat.format(instant) + ".png")
 	
-	fun getZoomString(zoom: Int): String = if (zoom > 0) Strings.repeat("z", zoom) + "_" else ""
-	
 	fun getInstantFromFile(file: File): Instant =
 		Instant.from(instantFormat.parse(Files.getNameWithoutExtension(file.name)))
+	
+	private fun getZoomString(zoom: Int): String = if (zoom > 0) Strings.repeat("z", zoom) + "_" else ""
 }

@@ -9,14 +9,23 @@ class ExportConfig {
 	val world: DynmapWebAPI.World
 	val map: DynmapWebAPI.Map
 	val zoom: Int
+	val changeThreshold: Double
 	
 	val from: TileCoords
 	val to: TileCoords
 	
-	constructor(world: DynmapWebAPI.World, map: DynmapWebAPI.Map, zoom: Int, from: TileCoords, to: TileCoords = from) {
+	constructor(
+		world: DynmapWebAPI.World,
+		map: DynmapWebAPI.Map,
+		zoom: Int,
+		changeThreshold: Double,
+		from: TileCoords,
+		to: TileCoords = from
+	) {
 		this.world = world
 		this.map = map
 		this.zoom = zoom
+		this.changeThreshold = changeThreshold
 		this.from = TileCoords(min(from.x, to.x), min(from.y, to.y)).floorToZoom(zoom)
 		this.to = TileCoords(max(from.x, to.x), max(from.y, to.y)).ceilToZoom(zoom)
 	}
@@ -25,9 +34,10 @@ class ExportConfig {
 		world: DynmapWebAPI.World,
 		map: DynmapWebAPI.Map,
 		zoom: Int,
+		changeThreshold: Double,
 		from: WorldCoords,
 		to: WorldCoords = from
-	) : this(world, map, zoom, from.toTileCoords(map, zoom), to.toTileCoords(map, zoom))
+	) : this(world, map, zoom, changeThreshold, from.toTileCoords(map, zoom), to.toTileCoords(map, zoom))
 	
 	/**
 	 * Get all tile locations from this export config.

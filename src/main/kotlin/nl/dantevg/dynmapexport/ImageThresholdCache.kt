@@ -7,9 +7,7 @@ import java.time.Instant
 import java.util.logging.Level
 import javax.imageio.ImageIO
 
-class ImageTresholdCache(private val plugin: DynmapExport) {
-	private val treshold = plugin.config.getDouble("change-treshold")
-	
+class ImageThresholdCache(private val plugin: DynmapExport) {
 	fun anyChangedSince(since: Instant, config: ExportConfig, files: Collection<File>): Boolean =
 		files.any { hasChangedSince(since, config, it) }
 	
@@ -20,7 +18,7 @@ class ImageTresholdCache(private val plugin: DynmapExport) {
 	 */
 	fun getCachedInstant(config: ExportConfig): Instant? {
 		val mapDir = Paths.getLocalMapDir(plugin, config)
-		if (mapDir.isDirectory) return null
+		if (!mapDir.isDirectory) return null
 		return mapDir.listFiles()?.maxOfOrNull(Paths::getInstantFromFile)
 	}
 	
@@ -41,7 +39,7 @@ class ImageTresholdCache(private val plugin: DynmapExport) {
 			plugin.logger.log(Level.WARNING, "Could not read image from $file")
 			return true
 		}
-		return getFractionPixelsChanged(from, image) >= treshold
+		return getFractionPixelsChanged(from, image) >= config.changeThreshold
 	}
 	
 	private fun getFractionPixelsChanged(from: BufferedImage, to: BufferedImage): Double {

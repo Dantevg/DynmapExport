@@ -19,7 +19,7 @@ class Downloader(private val plugin: DynmapExport) {
 	 * @return the amount of tiles downloaded, or -1 if nothing changed in the Dynmap
 	 */
 	fun downloadTiles(config: ExportConfig, now: Instant): Int {
-		val cached: Instant? = plugin.imageTresholdCache.getCachedInstant(config)
+		val cached: Instant? = plugin.imageThresholdCache.getCachedInstant(config)
 		val tiles: List<TileCoords> = config.toTileLocations()
 		val downloadedFiles: MutableMap<TileCoords, File> = HashMap()
 		for (tile in tiles) {
@@ -29,10 +29,10 @@ class Downloader(private val plugin: DynmapExport) {
 			download(tilePath, dest)
 		}
 		
-		// Not enough changes, remove tile files and directory again
 		if (downloadedFiles.isNotEmpty() && cached != null
-			&& !plugin.imageTresholdCache.anyChangedSince(cached, config, downloadedFiles.values)
+			&& !plugin.imageThresholdCache.anyChangedSince(cached, config, downloadedFiles.values)
 		) {
+			// Not enough changes, remove tile files and directory again
 			removeExportDir(config, now)
 			return -1
 		}
@@ -53,7 +53,7 @@ class Downloader(private val plugin: DynmapExport) {
 	 */
 	fun removeOldExportDirs(config: ExportConfig) {
 		val dir = Paths.getLocalMapDir(plugin, config)
-		val lastExport = plugin.imageTresholdCache.getCachedInstant(config)
+		val lastExport = plugin.imageThresholdCache.getCachedInstant(config)
 		val exportDirs: List<File> = dir.listFiles()
 			?.filter(File::isDirectory)
 			?.filter { dir.list().orEmpty().contains(it.name + ".png") }
@@ -81,7 +81,7 @@ class Downloader(private val plugin: DynmapExport) {
 		val map = world.getMapByName(mapName)
 			?: throw IllegalArgumentException("not a valid map")
 		val tile = WorldCoords(x, DynmapExport.Y_LEVEL, z).toTileCoords(map, zoom)
-		val config = ExportConfig(world, map, zoom, tile)
+		val config = ExportConfig(world, map, zoom, 0.0, tile)
 		return downloadTile(config, tile)
 	}
 	
