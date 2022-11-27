@@ -52,8 +52,8 @@ class ImageThresholdCache(private val plugin: DynmapExport) {
 		assert(from.width == to.width)
 		assert(from.height == to.height)
 		
-		return (0..from.width).sumOf { x ->
-			(0..from.height).count { y ->
+		return (0 until from.width).sumOf { x ->
+			(0 until from.height).count { y ->
 				from.getRGB(x, y) != to.getRGB(x, y)
 			}
 		}

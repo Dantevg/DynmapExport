@@ -7,12 +7,12 @@ data class WorldCoords(val x: Int, val y: Int, val z: Int) {
 		val unscaledX = (map.worldtomap[0] * x
 				+ map.worldtomap[1] * y
 				+ map.worldtomap[2] * z)
-		val tileX = TileCoords.zoomedFloor(unscaledX / SCALE_FACTOR, zoom)
+		val tileX = TileCoords.zoomedCeil(unscaledX / SCALE_FACTOR - 1, zoom)
 		
 		val unscaledY = (map.worldtomap[3] * x
 				+ map.worldtomap[4] * y
 				+ map.worldtomap[5] * z)
-		val tileY = TileCoords.zoomedFloor(unscaledY / SCALE_FACTOR, zoom)
+		val tileY = TileCoords.zoomedCeil(unscaledY / SCALE_FACTOR - 1, zoom)
 		
 		return TileCoords(tileX, tileY)
 	}
