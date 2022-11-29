@@ -14,14 +14,17 @@ auto-combine: true
 # (uncomment to use)
 #schedule: 1m
 
-# A list of export configurations. Coordinates are in-game block coordinates.
+# A list of export configurations.
 exports:
 #  - world: world
 #    map: flat
+#    # The zoom-out level (0 is fully zoomed in)
 #    zoom: 0
 #    # The minimum fraction of pixels to change within a single Dynmap tile for
 #    # the export to happen.
 #    change-threshold: 0.2
+#    # The in-game block coordinates of the corners of the export. y (height) is
+#    # optional, defaults to 64.
 #    from:
 #      x: -128
 #      z: -128
