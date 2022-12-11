@@ -32,6 +32,7 @@ class DynmapExport : JavaPlugin() {
 		
 		imageThresholdCache = ImageThresholdCache(this)
 		downloader = Downloader(this)
+		ExportScheduler(this)
 		
 		worldConfiguration = getDynmapConfiguration()
 		exportConfigs = if (worldConfiguration != null) {
@@ -96,22 +97,16 @@ class DynmapExport : JavaPlugin() {
 		val toMap = exportMap["to"] as Map<String, Int>?
 		
 		if (fromMap == null || toMap == null) {
-			logger.log(Level.WARNING, "export needs field 'from' and 'to', ignoring this export")
+			logger.warning("export needs field 'from' and 'to', ignoring this export")
 			return null
 		}
 		
 		if (!fromMap.containsKey("x") || !fromMap.containsKey("z")) {
-			logger.log(
-				Level.WARNING,
-				"export field 'from' needs to have at least fields 'x' and 'z', ignoring this export"
-			)
+			logger.warning("export field 'from' needs to have at least fields 'x' and 'z', ignoring this export")
 			return null
 		}
 		if (!toMap.containsKey("x") || !toMap.containsKey("z")) {
-			logger.log(
-				Level.WARNING,
-				"export field 'to' needs to have at least fields 'x' and 'z', ignoring this export"
-			)
+			logger.warning("export field 'to' needs to have at least fields 'x' and 'z', ignoring this export")
 			return null
 		}
 		val from = WorldCoords(fromMap["x"]!!, fromMap["y"] ?: Y_LEVEL, fromMap["z"]!!)

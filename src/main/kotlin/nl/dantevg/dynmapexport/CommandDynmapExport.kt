@@ -7,10 +7,10 @@ import org.bukkit.command.*
 class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, TabCompleter {
 	override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean =
 		when {
-			args[0] == "now" && args.size == 1 -> commandNow(sender)
-			args[0] == "reload" && args.size == 1 -> commandReload(sender)
-			args[0] == "debug" && args.size == 1 -> commandDebug(sender)
-			args[0] == "export" && args.size == 6 -> try {
+			args.size == 1 && args[0] == "now" -> commandNow(sender)
+			args.size == 1 && args[0] == "reload" -> commandReload(sender)
+			args.size == 1 && args[0] == "debug" -> commandDebug(sender)
+			args.size == 6 && args[0] == "export" -> try {
 				commandExport(
 					sender = sender,
 					world = args[1],
@@ -24,7 +24,7 @@ class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, T
 				false
 			}
 			
-			args[0] == "worldtomap" && args.size in 6..7 -> try {
+			args.size in 6..7 && args[0] == "worldtomap" -> try {
 				commandWorldtomap(
 					sender = sender,
 					worldName = args[1],
