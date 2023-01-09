@@ -45,7 +45,7 @@ class ImageThresholdCache(private val plugin: DynmapExport) {
 	private fun getFractionPixelsChanged(from: BufferedImage, to: BufferedImage): Double {
 		val pixelsChanged = getNPixelsChanged(from, to)
 		val totalPixels = to.width * to.height
-		return (pixelsChanged / totalPixels).toDouble()
+		return pixelsChanged.toDouble() / totalPixels
 	}
 	
 	private fun getNPixelsChanged(from: BufferedImage, to: BufferedImage): Int {
