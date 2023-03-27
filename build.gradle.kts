@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "nl.dantevg"
-version = "1.3.1"
+version = "1.3.2-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
@@ -59,6 +59,7 @@ spigot {
                 /dynmapexport export <world> <map> <x> <z> <zoom>
                 /dynmapexport reload
                 /dynmapexport worldtomap <world> <map> <x> <y> <z> [zoom]
+                /dynmapexport purge [all]
             """.trimIndent()
 			permission = "dynmapexport.*"
 		}

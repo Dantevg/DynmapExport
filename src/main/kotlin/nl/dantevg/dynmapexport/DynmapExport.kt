@@ -73,6 +73,13 @@ class DynmapExport : JavaPlugin() {
 		logger.log(Level.INFO, "Reload complete")
 	}
 	
+	fun purge(all: Boolean) {
+		if (all) downloader.removeAllExports()
+		else {
+			for (exportConfig in exportConfigs) downloader.removeOldExports(exportConfig)
+		}
+	}
+	
 	fun debug() = "Dynmap world configuration:\n$worldConfiguration"
 	
 	private fun getDynmapConfiguration(): DynmapWebAPI.Configuration? {

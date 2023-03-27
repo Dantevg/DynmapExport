@@ -39,6 +39,14 @@ class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, T
 				false
 			}
 			
+			args.size in 1..3 && args[0] == "purge" -> {
+				commandPurge(
+					sender,
+					args.size >= 2 && args[1] == "all",
+					args[args.size - 1] == "confirm"
+				)
+			}
+			
 			else -> false
 		}
 	
@@ -91,19 +99,33 @@ class CommandDynmapExport(private val plugin: DynmapExport) : CommandExecutor, T
 		return true
 	}
 	
+	private fun commandPurge(sender: CommandSender, all: Boolean, confirm: Boolean): Boolean {
+		if (confirm) {
+			plugin.purge(all)
+			sender.sendMessage("Purged all old files")
+		} else {
+			if (all) sender.sendMessage("Warning: this will permanently delete all exports. To confirm, run /dynmapexport purge all confirm")
+			else sender.sendMessage("Warning: this will permanently delete all but the last export. To confirm, run /dynmapexport purge confirm")
+		}
+		return true
+	}
+	
 	override fun onTabComplete(
 		sender: CommandSender,
 		command: Command,
 		label: String,
 		args: Array<out String>
 	): List<String>? = when {
-		args.size == 1 -> listOf("now", "export", "reload", "debug", "worldtomap")
+		args.size == 1 -> listOf("now", "export", "reload", "debug", "worldtomap", "purge")
 		// Suggest world
 		args.size == 2 && (args[0] == "export" || args[0] == "worldtomap") ->
 			plugin.worldConfiguration?.worlds?.map { it.name }
 		// Suggest map
 		args.size == 3 && (args[0] == "export" || args[0] == "worldtomap") ->
 			plugin.worldConfiguration?.getWorldByName(args[1])?.maps?.map { it.name }.orEmpty()
+		
+		args.size == 2 && args[0] == "purge" -> listOf("all", "confirm")
+		args.size == 3 && args[0] == "purge" && args[1] == "all" -> listOf("confirm")
 		
 		else -> emptyList()
 	}

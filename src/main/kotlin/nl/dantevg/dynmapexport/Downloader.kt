@@ -56,13 +56,40 @@ class Downloader(private val plugin: DynmapExport) {
 		val lastExport = plugin.imageThresholdCache.getCachedInstant(config)
 		val exportDirs: List<File> = dir.listFiles()
 			?.filter(File::isDirectory)
-			?.filter { dir.list().orEmpty().contains(it.name + ".png") }
+			?.filter { dir.list()?.contains(it.name + ".png") ?: false }
 			.orEmpty()
 		
 		for (exportDir in exportDirs) {
 			val instant = Paths.getInstantFromFile(exportDir)
 			if (instant != lastExport) removeExportDir(config, instant)
 		}
+	}
+	
+	/**
+	 * Remove all but the last exported image and export directory.
+	 * @param config the export configuration
+	 */
+	fun removeOldExports(config: ExportConfig) {
+		val dir = Paths.getLocalMapDir(plugin, config)
+		val lastExport = plugin.imageThresholdCache.getCachedInstant(config)
+		for (export in dir.listFiles().orEmpty()) {
+			val instant = Paths.getInstantFromFile(export)
+			if (instant == lastExport) continue
+			if (export.isDirectory) removeExportDir(config, instant) else export.delete()
+		}
+	}
+	
+	/**
+	 * Remove all exported files, including directories.
+	 */
+	fun removeAllExports() {
+		fun delete(file: File) {
+			if (file.isDirectory) for (subfile in file.listFiles().orEmpty()) delete(subfile)
+			file.delete()
+		}
+		
+		val dir = File(plugin.dataFolder, "exports")
+		delete(dir)
 	}
 	
 	/**
