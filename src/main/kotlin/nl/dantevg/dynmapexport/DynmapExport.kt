@@ -13,6 +13,8 @@ import java.net.URL
 import java.time.Instant
 import java.util.logging.Level
 
+const val Y_LEVEL = 64
+
 class DynmapExport : JavaPlugin() {
 	private lateinit var exportConfigs: List<ExportConfig>
 	
@@ -93,41 +95,37 @@ class DynmapExport : JavaPlugin() {
 		val mapName = exportMap["map"] as String?
 		val zoom = exportMap["zoom"] as Int
 		val changeThreshold = exportMap["change-threshold"] as Double
-		val fromMap = exportMap["from"] as Map<String, Int>?
-		val toMap = exportMap["to"] as Map<String, Int>?
+		val fromMap = ensurePresent(exportMap["from"] as Map<String, Int>, "export is missing field 'from'")
+			?: return null
+		val toMap = ensurePresent(exportMap["to"] as? Map<String, Int>, "export is missing field 'to'")
+			?: return null
 		
-		if (fromMap == null || toMap == null) {
-			logger.warning("export needs field 'from' and 'to', ignoring this export")
-			return null
-		}
+		val fromX = ensurePresent(fromMap["x"], "export field 'from' is missing field 'x'") ?: return null
+		val fromY = fromMap["y"] ?: Y_LEVEL
+		val fromZ = ensurePresent(fromMap["z"], "export field 'from' is missing field 'z'") ?: return null
+		val toX = ensurePresent(toMap["x"], "export field 'to' is missing field 'x'") ?: return null
+		val toY = toMap["y"] ?: Y_LEVEL
+		val toZ = ensurePresent(toMap["z"], "export field 'to' is missing field 'z'") ?: return null
 		
-		if (!fromMap.containsKey("x") || !fromMap.containsKey("z")) {
-			logger.warning("export field 'from' needs to have at least fields 'x' and 'z', ignoring this export")
-			return null
-		}
-		if (!toMap.containsKey("x") || !toMap.containsKey("z")) {
-			logger.warning("export field 'to' needs to have at least fields 'x' and 'z', ignoring this export")
-			return null
-		}
-		val from = WorldCoords(fromMap["x"]!!, fromMap["y"] ?: Y_LEVEL, fromMap["z"]!!)
-		val to = WorldCoords(toMap["x"]!!, toMap["y"] ?: Y_LEVEL, toMap["z"]!!)
+		val from = WorldCoords(fromX, fromY, fromZ)
+		val to = WorldCoords(toX, toY, toZ)
 		
-		val world = if (worldName != null) worldConfiguration?.getWorldByName(worldName) else null
-		if (world == null) {
-			logger.log(Level.SEVERE, "$worldName is not a valid world, ignoring this export")
-			return null
-		}
+		val world = ensurePresent(
+			worldName?.let { worldConfiguration?.getWorldByName(it) },
+			"$worldName is not a valid world"
+		) ?: return null
 		
-		val map = world.getMapByName(mapName!!)
-		if (map == null) {
-			logger.log(Level.SEVERE, "$mapName is not a valid map for world $worldName, ignoring this export")
-			return null
-		}
+		val map = ensurePresent(
+			mapName?.let(world::getMapByName),
+			"$mapName is not a valid map for world $worldName"
+		) ?: return null
 		
 		return ExportConfig(world, map, zoom, changeThreshold, from, to)
 	}
 	
-	companion object {
-		const val Y_LEVEL = 64
-	}
+	private fun <T> ensurePresent(value: T?, msg: String): T? =
+		if (value == null) {
+			logger.warning("$msg, ignoring this export")
+			null
+		} else value
 }

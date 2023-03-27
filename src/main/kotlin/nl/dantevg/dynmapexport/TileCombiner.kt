@@ -8,6 +8,8 @@ import java.time.Instant
 import java.util.logging.Level
 import javax.imageio.ImageIO
 
+private const val PIXELS_PER_TILE = 128
+
 class TileCombiner(private val plugin: DynmapExport, private val config: ExportConfig, private val instant: Instant) {
 	fun combineAndSave(): Boolean {
 		val result: BufferedImage = combine() ?: return false
@@ -57,8 +59,4 @@ class TileCombiner(private val plugin: DynmapExport, private val config: ExportC
 	
 	private fun tileCoordsToPixelY(tile: TileCoords): Int =
 		(config.to.y - tile.y) / (1 shl config.zoom) * PIXELS_PER_TILE
-	
-	companion object {
-		const val PIXELS_PER_TILE = 128
-	}
 }

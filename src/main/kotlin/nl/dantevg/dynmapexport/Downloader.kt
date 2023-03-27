@@ -80,7 +80,7 @@ class Downloader(private val plugin: DynmapExport) {
 			?: throw IllegalArgumentException("not a valid world")
 		val map = world.getMapByName(mapName)
 			?: throw IllegalArgumentException("not a valid map")
-		val tile = WorldCoords(x, DynmapExport.Y_LEVEL, z).toTileCoords(map, zoom)
+		val tile = WorldCoords(x, Y_LEVEL, z).toTileCoords(map, zoom)
 		val config = ExportConfig(world, map, zoom, 0.0, tile)
 		return downloadTile(config, tile)
 	}

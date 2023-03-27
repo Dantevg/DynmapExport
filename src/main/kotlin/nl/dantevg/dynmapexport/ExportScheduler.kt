@@ -11,6 +11,8 @@ import java.time.Instant
 import java.time.format.DateTimeParseException
 import java.util.logging.Level
 
+private const val FILENAME = "last-export.txt"
+
 class ExportScheduler(private val plugin: DynmapExport) {
 	private val lastExportFile: File = File(plugin.dataFolder, FILENAME)
 	private var lastExport: Instant = try {
@@ -59,9 +61,5 @@ class ExportScheduler(private val plugin: DynmapExport) {
 			lastExport = Instant.now()
 			saveLastExport()
 		}
-	}
-	
-	companion object {
-		private const val FILENAME = "last-export.txt"
 	}
 }
