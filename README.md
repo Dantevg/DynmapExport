@@ -41,3 +41,5 @@ A list of export configurations. Each configuration has the following structure:
 - `/dynmapexport reload`: reload the plugin and config-file.
 - `/dynmapexport worldtomap <world> <map> <x> <y> <z> [zoom]`: get the tile
   coordinates of the given world coordinates.
+- `/dynmapexport purge [all]`: delete all old exports, or delete everything
+  (also the latest export) if `all` is given.
