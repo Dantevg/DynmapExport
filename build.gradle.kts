@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "nl.dantevg"
-version = "1.3.2-SNAPSHOT"
+version = "1.4.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
