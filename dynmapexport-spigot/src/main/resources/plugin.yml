@@ -1,0 +1,21 @@
+main: nl.dantevg.dynmapexport.DynmapExport
+name: DynmapExport
+version: ${version} # Filled in automatically by maven
+api-version: 1.13
+description: Export Dynmap images
+author: RedPolygon
+website: dantevg.nl/mods-plugins/DynmapExport
+softdepend: [dynmap]
+commands:
+  dynmapexport:
+    description: DynmapExport command
+    usage: |
+      Usage:
+      /dynmapexport now
+      /dynmapexport export <world> <map> <x> <z> <zoom>
+      /dynmapexport reload
+      /dynmapexport worldtomap <world> <map> <x> <y> <z> [zoom]
+    permission: dynmapexport.*
+permissions:
+  dynmapexport.*:
+    description: Allows running /dynmapexport command

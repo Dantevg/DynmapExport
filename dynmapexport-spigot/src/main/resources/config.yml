@@ -1,0 +1,26 @@
+# DynmapExport config file
+
+# The hostname/ip and port of Dynmap
+# (use localhost for Dynmap running on the same server)
+dynmap-host: localhost:8123
+
+# The minimum fraction of pixels to change within a single Dynmap tile for the
+# export to happen.
+change-treshold: 0.2
+
+# Whether to automatically combine the tiles into a single image.
+# Disabling this can reduce server lag if you encounter it (for large images),
+# but you'll need to combine the tiles yourself.
+auto-combine: true
+
+# A list of export configurations. Coordinates are in-game block coordinates.
+exports:
+#  - world: world
+#    map: flat
+#    zoom: 0
+#    from:
+#      x: -128
+#      z: -128
+#    to:
+#      x: 128
+#      z: 128

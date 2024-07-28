@@ -1,0 +1,21 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm"
+    id "org.jetbrains.kotlin.plugin.serialization"
+    id "com.github.johnrengelman.shadow"
+}
+
+repositories {}
+
+dependencies {
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1"
+    implementation "org.slf4j:slf4j-api:2.0.13"
+    implementation "com.charleskorn.kaml:kaml:${project.kaml_version}"
+
+    testImplementation(platform "org.junit:junit-bom:5.10.3")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+test {
+    useJUnitPlatform()
+}

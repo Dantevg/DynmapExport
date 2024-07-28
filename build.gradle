@@ -1,0 +1,42 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+	id "org.jetbrains.kotlin.jvm" version "2.0.0" apply false
+	id "org.jetbrains.kotlin.plugin.serialization" version "2.0.0" apply false
+	id "kr.entree.spigradle" version "2.4.3" apply false
+	id "fabric-loom" version "1.7-SNAPSHOT" apply false
+	id "com.github.johnrengelman.shadow" version "8.1.1" apply false
+}
+
+repositories {
+	mavenCentral()
+}
+
+allprojects {
+	version = project.version
+	group = project.group
+}
+
+subprojects {
+	apply plugin: "java"
+	
+	repositories {
+		mavenCentral()
+	}
+	
+	tasks.withType(JavaCompile).configureEach {
+		it.options.release = 21
+	}
+
+	tasks.withType(KotlinCompile).configureEach {
+		kotlinOptions {
+			jvmTarget = 21
+		}
+	}
+
+	jar {
+		from("LICENSE") {
+			rename { "${it}_${project.base.archivesName.get()}"}
+		}
+	}
+}

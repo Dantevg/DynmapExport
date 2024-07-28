@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "dynmapexport",
+	"version": "${version}",
+	"name": "DynmapExport",
+	"description": "Export Dynmap images",
+	"authors": ["RedPolygon"],
+	"contact": {
+		"homepage": "dantevg.nl/mods-plugins/DynmapExport",
+		"sources": "https://github.com/Dantevg/DynmapExport"
+	},
+	"license": "MIT",
+	"icon": "assets/dynmapexport/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "nl.dantevg.dynmapexport.DynmapExportMod",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [],
+	"depends": {
+		"fabricloader": ">=${project.loader_version}",
+		"minecraft": "~${project.minecraft_version}",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*",
+		"silk-commands": ">=${project.silk_version}",
+		"silk-core": ">=${project.silk_version}"
+	},
+	"suggests": {
+		"dynmap": "*"
+	}
+}

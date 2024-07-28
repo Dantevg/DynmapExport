@@ -1,0 +1,31 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm"
+    id "kr.entree.spigradle"
+    id "com.github.johnrengelman.shadow"
+}
+
+repositories {
+    spigotmc()
+}
+
+dependencies {
+    compileOnly(spigot(project.minecraft_version))
+
+    shadow(implementation(project ":dynmapexport-common"))
+}
+
+processResources {
+    filesMatching("plugin.yml") {
+        expand project.properties
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    exclude "META-INF"
+}
+
+build {
+    dependsOn shadowJar
+    mustRunAfter shadowJar
+}
