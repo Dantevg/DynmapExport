@@ -16,7 +16,7 @@ data class Config(
 		"(use localhost for Dynmap running on the same server)"
 	)
 	val dynmapHost: String = "localhost:8123",
-
+	
 	@SerialName("auto-combine")
 	@YamlComment(
 		"Whether to automatically combine the tiles into a single image.",
@@ -24,7 +24,7 @@ data class Config(
 		"but you'll need to combine the tiles yourself.",
 	)
 	val autoCombine: Boolean = true,
-
+	
 	@YamlComment(
 		"A list of export configurations. Example:",
 		"  exports:",
@@ -47,8 +47,10 @@ data class ExportConfig(
 	val world: String,
 	val map: String,
 	val zoom: Int = 0,
-	@SerialName("change-threshold")
-	val changeThreshold: Double = 0.2,
+	@SerialName("area-change-threshold")
+	val areaChangeThreshold: Double = 0.1,
+	@SerialName("colour-change-threshold")
+	val colourChangeThreshold: Double = 0.1,
 	val from: WorldCoords,
 	val to: WorldCoords,
 ) {
@@ -56,11 +58,12 @@ data class ExportConfig(
 		world: DynmapWebAPI.World,
 		map: DynmapWebAPI.Map,
 		zoom: Int,
-		changeThreshold: Double,
+		areaChangeThreshold: Double,
+		colourChangeThreshold: Double,
 		from: WorldCoords,
 		to: WorldCoords = from,
-	) : this(world.name, map.name, zoom, changeThreshold, from, to)
-
+	) : this(world.name, map.name, zoom, areaChangeThreshold, colourChangeThreshold, from, to)
+	
 	/**
 	 * Get all tile locations from this export config.
 	 *
@@ -69,16 +72,16 @@ data class ExportConfig(
 	fun toTileLocations(map: DynmapWebAPI.Map): List<TileCoords> {
 		val tiles: MutableList<TileCoords> = ArrayList()
 		val (fromTile, toTile) = toMinMaxTileCoords(map)
-
+		
 		for (x in fromTile.x..toTile.x step (1 shl zoom)) {
 			for (y in fromTile.y..toTile.y step (1 shl zoom)) {
 				tiles += TileCoords(x, y)
 			}
 		}
-
+		
 		return tiles
 	}
-
+	
 	fun toMinMaxTileCoords(map: DynmapWebAPI.Map): Pair<TileCoords, TileCoords> {
 		val fromTile = from.toTileCoords(map, zoom)
 		val toTile = to.toTileCoords(map, zoom)

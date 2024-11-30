@@ -27,7 +27,7 @@ class Downloader(private val dynmapExport: DynmapExport) {
 			downloadedFiles[tile] = dest
 			download(tilePath, dest)
 		}
-
+		
 		if (downloadedFiles.isNotEmpty() && cached != null
 			&& !dynmapExport.imageThresholdCache.anyChangedSince(cached, config, downloadedFiles.values)
 		) {
@@ -37,13 +37,13 @@ class Downloader(private val dynmapExport: DynmapExport) {
 		}
 		return downloadedFiles.size
 	}
-
+	
 	private fun removeExportDir(config: ExportConfig, instant: Instant) {
 		val dir = Paths.getLocalExportDir(dynmapExport, config, instant)
 		dir.listFiles()?.forEach(File::delete)
 		dir.delete()
 	}
-
+	
 	/**
 	 * Remove all but the last export directory, except ones that do not have
 	 * an associated auto-combined image.
@@ -57,13 +57,13 @@ class Downloader(private val dynmapExport: DynmapExport) {
 			?.filter(File::isDirectory)
 			?.filter { dir.list()?.contains(it.name + ".png") ?: false }
 			.orEmpty()
-
+		
 		for (exportDir in exportDirs) {
 			val instant = Paths.getInstantFromFile(exportDir)
 			if (instant != lastExport) removeExportDir(config, instant)
 		}
 	}
-
+	
 	/**
 	 * Remove all but the last exported image and export directory.
 	 * @param config the export configuration
@@ -77,7 +77,7 @@ class Downloader(private val dynmapExport: DynmapExport) {
 			if (export.isDirectory) removeExportDir(config, instant) else export.delete()
 		}
 	}
-
+	
 	/**
 	 * Remove all exported files, including directories.
 	 */
@@ -86,10 +86,10 @@ class Downloader(private val dynmapExport: DynmapExport) {
 			if (file.isDirectory) for (subfile in file.listFiles().orEmpty()) delete(subfile)
 			file.delete()
 		}
-
+		
 		delete(dynmapExport.exportsDir)
 	}
-
+	
 	/**
 	 * Download a single tile at the given location.
 	 *
@@ -106,10 +106,10 @@ class Downloader(private val dynmapExport: DynmapExport) {
 		val map = world.getMapByName(mapName)
 			?: throw IllegalArgumentException("not a valid map")
 		val worldCoords = WorldCoords(x, Y_LEVEL, z)
-		val config = ExportConfig(world, map, zoom, 0.0, worldCoords)
+		val config = ExportConfig(world, map, zoom, 0.0, 0.0, worldCoords)
 		return downloadTile(config, worldCoords.toTileCoords(map, zoom))
 	}
-
+	
 	/**
 	 * Download a single tile at the given location.
 	 *
@@ -123,7 +123,7 @@ class Downloader(private val dynmapExport: DynmapExport) {
 		val dest: File = Paths.getLocalTileFile(dynmapExport, config, Instant.now(), tileCoords)
 		return if (download(tilePath, dest)) dest.path else null
 	}
-
+	
 	/**
 	 * Download the Dynmap tile at `path` to `dest`.
 	 *

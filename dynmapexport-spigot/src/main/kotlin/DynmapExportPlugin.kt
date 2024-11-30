@@ -54,7 +54,8 @@ object DynmapExportPlugin : JavaPlugin(), DynmapExport {
 		val worldName = exportMap["world"] as String?
 		val mapName = exportMap["map"] as String?
 		val zoom = exportMap["zoom"] as Int
-		val changeThreshold = exportMap["change-threshold"] as Double
+		val areaChangeThreshold = exportMap["area-change-threshold"] as Double
+		val colourChangeThreshold = exportMap["pixel-change-threshold"] as Double
 		val fromMap =
 			ensurePresent(exportMap["from"] as Map<String, Int>, "export is missing field 'from'")
 				?: return null
@@ -82,6 +83,6 @@ object DynmapExportPlugin : JavaPlugin(), DynmapExport {
 			"$mapName is not a valid map for world $worldName"
 		) ?: return null
 
-		return ExportConfig(world, map, zoom, changeThreshold, from, to)
+		return ExportConfig(world, map, zoom, areaChangeThreshold, colourChangeThreshold, from, to)
 	}
 }
