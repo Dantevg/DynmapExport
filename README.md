@@ -17,11 +17,6 @@ Whether to automatically combine the Dynmap tiles into one single image.
 If you have set a large area and you encounter lag when exporting, you can try
 disabling this.  Note that you will have to combine the tiles yourself.
 
-### `schedule`
-A simplified ISO-8601 formatted interval at which to automatically export all
-configurations.
-> For example: `10m`, `1h30m`, `1d`
-
 ### `exports`
 A list of export configurations. Each configuration has the following structure:
 - `world`: the name of the world
