@@ -7,21 +7,21 @@ val command = command(DynmapExportMod.MOD_ID) {
 	literal("now") runsAsync {
 		DynmapExportMod.export { source.sendMessage(it.literal) }
 	}
-
+	
 	literal("reload") runs {
 		DynmapExportMod.reload()
 		if (source.isExecutedByPlayer) source.sendMessage("Reload complete".literal)
 	}
-
+	
 	literal("export") {
 		argument<String>("world") { world ->
 			suggestList { DynmapExportMod.worldConfiguration?.worlds?.map { it.name } ?: emptyList() }
-
+			
 			argument<String>("map") { map ->
 				suggestList { ctx ->
 					DynmapExportMod.worldConfiguration?.getWorldByName(world(ctx))?.maps?.map { it.name } ?: emptyList()
 				}
-
+				
 				argument<Int>("x") { x ->
 					argument<Int>("z") { z ->
 						argument<Int>("zoom") { zoom ->
@@ -40,7 +40,7 @@ val command = command(DynmapExportMod.MOD_ID) {
 			}
 		}
 	}
-
+	
 	literal("purge") {
 		runs {
 			source.sendMessage("Warning: this will permanently delete all but the last export. To confirm, run /${DynmapExportMod.MOD_ID} purge confirm".literal)
@@ -48,7 +48,7 @@ val command = command(DynmapExportMod.MOD_ID) {
 		literal("confirm") runs {
 			DynmapExportMod.purge(false)
 		}
-
+		
 		literal("all") {
 			runs {
 				source.sendMessage("Warning: this will permanently delete all exports. To confirm, run /${DynmapExportMod.MOD_ID} purge all confirm".literal)

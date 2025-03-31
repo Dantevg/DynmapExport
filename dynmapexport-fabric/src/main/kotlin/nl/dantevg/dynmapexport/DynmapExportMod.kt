@@ -15,30 +15,30 @@ import kotlin.io.path.outputStream
 
 object DynmapExportMod : ModInitializer, DynmapExport {
 	const val MOD_ID = "dynmapexport"
-
+	
 	override val logger = Slf4jLogger(LoggerFactory.getLogger(MOD_ID))
 	override val exportsDir = FabricLoader.getInstance().gameDir.resolve(MOD_ID).toFile()
-
+	
 	override var config = loadConfig()
 	override var worldConfiguration: DynmapWebAPI.Configuration? = null
 	override var imageThresholdCache = ImageThresholdCache(this)
 	override var downloader = Downloader(this)
-
+	
 	override fun onInitialize() {
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTED.register {
 			worldConfiguration = getDynmapConfiguration()
 				?.also { logger.info("Loaded dynmap configuration") }
 		}
-
+		
 		command // auto-register command with Silk
 	}
-
+	
 	override fun reload() {
 		logger.info("Reloading")
 		config = loadConfig()
 		worldConfiguration = getDynmapConfiguration()
 	}
-
+	
 	private fun loadConfig(): Config {
 		FabricLoader.getInstance().configDir.createDirectories()
 		val configPath = FabricLoader.getInstance().configDir.resolve("$MOD_ID.yml")

@@ -15,7 +15,7 @@ object Paths {
 	 */
 	private val instantFormat = DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'")
 		.withZone(ZoneId.from(ZoneOffset.UTC))
-
+	
 	/**
 	 * Get the Dynmap path to the tile, at
 	 * `{world}/{map}/{regionX}_{regionZ}/{zoom}_{tileX}_{tileY}.png`
@@ -26,20 +26,20 @@ object Paths {
 		"tiles/${config.world}/${
 			dynmapConfig.getMapByName(config.world, config.map)?.prefix
 		}/${tile.tileGroupCoords}/${getZoomString(config.zoom)}${tile.x}_${tile.y}.png"
-
+	
 	/**
 	 * Get the local map directory, at `plugins/DynmapExport/exports/{world}/{map}/`
 	 */
 	fun getLocalMapDir(plugin: DynmapExport, config: ExportConfig): File =
 		File(plugin.exportsDir, "${config.world}/${config.map}")
-
+	
 	/**
 	 * Get the local directory of a single export at a given [instant] in time,
 	 * at `plugins/DynmapExport/exports/{world}/{map}/{instant}/`
 	 */
 	fun getLocalExportDir(plugin: DynmapExport, config: ExportConfig, instant: Instant): File =
 		File(getLocalMapDir(plugin, config), instantFormat.format(instant))
-
+	
 	/**
 	 * Get the local file for the image in a single export at a given [instant]
 	 * in time, at the given [tile]-location, at
@@ -50,16 +50,16 @@ object Paths {
 	 */
 	fun getLocalTileFile(plugin: DynmapExport, config: ExportConfig, instant: Instant, tile: TileCoords): File =
 		File(getLocalExportDir(plugin, config, instant), "${getZoomString(config.zoom)}${tile.x}_${tile.y}.png")
-
+	
 	/**
 	 * Get the local file for the combined image of a single export at a given
 	 * [instant] in time, at `plugins/DynmapExport/exports/{world}/{map}/{instant}.png`
 	 */
 	fun getLocalCombinedFile(plugin: DynmapExport, config: ExportConfig, instant: Instant): File =
 		File(getLocalMapDir(plugin, config), instantFormat.format(instant) + ".png")
-
+	
 	fun getInstantFromFile(file: File): Instant =
 		Instant.from(instantFormat.parse(file.nameWithoutExtension))
-
+	
 	private fun getZoomString(zoom: Int): String = if (zoom > 0) "z".repeat(zoom) + "_" else ""
 }

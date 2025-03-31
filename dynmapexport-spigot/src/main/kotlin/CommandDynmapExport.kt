@@ -23,7 +23,7 @@ class CommandDynmapExport(private val dynmapExport: DynmapExportPlugin) : Comman
 				sender.sendMessage("Invalid number")
 				false
 			}
-
+			
 			args.size in 6..7 && args[0] == "worldtomap" -> try {
 				commandWorldtomap(
 					sender = sender,
@@ -38,7 +38,7 @@ class CommandDynmapExport(private val dynmapExport: DynmapExportPlugin) : Comman
 				sender.sendMessage("Invalid number")
 				false
 			}
-
+			
 			args.size in 1..3 && args[0] == "purge" -> {
 				commandPurge(
 					sender,
@@ -46,10 +46,10 @@ class CommandDynmapExport(private val dynmapExport: DynmapExportPlugin) : Comman
 					args[args.size - 1] == "confirm"
 				)
 			}
-
+			
 			else -> false
 		}
-
+	
 	private fun commandNow(sender: CommandSender): Boolean {
 		Bukkit.getScheduler().runTaskAsynchronously(
 			dynmapExport,
@@ -57,18 +57,18 @@ class CommandDynmapExport(private val dynmapExport: DynmapExportPlugin) : Comman
 		)
 		return true
 	}
-
+	
 	private fun commandReload(sender: CommandSender): Boolean {
 		dynmapExport.reload()
 		if (sender !is ConsoleCommandSender) sender.sendMessage("Reload complete")
 		return true
 	}
-
+	
 	private fun commandDebug(sender: CommandSender): Boolean {
 		sender.sendMessage(dynmapExport.debug())
 		return true
 	}
-
+	
 	/**
 	 * Export a single configuration.
 	 */
@@ -82,7 +82,7 @@ class CommandDynmapExport(private val dynmapExport: DynmapExportPlugin) : Comman
 		sender.sendMessage(if (path != null) "Saved tile at $path" else "Could not save tile (check console)")
 		return true
 	}
-
+	
 	private fun commandWorldtomap(
 		sender: CommandSender,
 		worldName: String,
@@ -98,7 +98,7 @@ class CommandDynmapExport(private val dynmapExport: DynmapExportPlugin) : Comman
 		sender.sendMessage(java.lang.String.format("%s is in tile %s", worldCoords, tileCoords))
 		return true
 	}
-
+	
 	private fun commandPurge(sender: CommandSender, all: Boolean, confirm: Boolean): Boolean {
 		if (confirm) {
 			dynmapExport.purge(all)
@@ -109,7 +109,7 @@ class CommandDynmapExport(private val dynmapExport: DynmapExportPlugin) : Comman
 		}
 		return true
 	}
-
+	
 	override fun onTabComplete(
 		sender: CommandSender,
 		command: Command,
@@ -123,13 +123,13 @@ class CommandDynmapExport(private val dynmapExport: DynmapExportPlugin) : Comman
 		// Suggest map
 		args.size == 3 && (args[0] == "export" || args[0] == "worldtomap") ->
 			dynmapExport.worldConfiguration?.getWorldByName(args[1])?.maps?.map { it.name }.orEmpty()
-
+		
 		args.size == 2 && args[0] == "purge" -> listOf("all", "confirm")
 		args.size == 3 && args[0] == "purge" && args[1] == "all" -> listOf("confirm")
-
+		
 		else -> emptyList()
 	}
-
+	
 	private fun getMapFromWorldMapNames(sender: CommandSender, worldName: String, mapName: String): DynmapWebAPI.Map? {
 		assert(dynmapExport.worldConfiguration != null)
 		val world = dynmapExport.worldConfiguration?.getWorldByName(worldName)
