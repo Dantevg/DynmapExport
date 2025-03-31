@@ -5,7 +5,13 @@ import java.io.File
 import java.io.IOException
 import java.time.Instant
 import javax.imageio.ImageIO
-import kotlin.math.max
+import kotlin.math.abs
+import kotlin.math.pow
+
+// Used in calculating the difference between two colours.
+// A value of 1 results in colour values of 0 vs 1 being as different as 254 vs 255.
+// Lower values will give more weight to changes in darker colours.
+private const val COLOUR_CHANGE_LINEARITY = 0.75
 
 class ImageThresholdCache(private val dynmapExport: DynmapExport) {
 	/**
@@ -70,14 +76,18 @@ private fun nPixelsChanged(from: BufferedImage, to: BufferedImage, colourChangeT
  * @return the colour difference on the scale `[0,1]`
  */
 private fun colourDifference(from: RGB, to: RGB): Double =
-	(1 - minOf(
-		from.red() / to.red(), to.red() / from.red(),
-		from.green() / to.green(), to.green() / from.green(),
-		from.blue() / to.blue(), to.blue() / from.blue(),
-	)).toDouble() / 0xFF
+	maxOf(
+		channelDifference(from.red(), to.red()),
+		channelDifference(from.green(), to.green()),
+		channelDifference(from.blue(), to.blue()),
+	)
+
+private val lut = DoubleArray(256) { (it.toDouble() / 0xFF).pow(COLOUR_CHANGE_LINEARITY) }
+
+private fun channelDifference(from: Int, to: Int): Double = abs(lut[from] - lut[to])
 
 typealias RGB = Int
 
-private fun RGB.red(): Int = max(1, (this ushr 16) and 0xFF)
-private fun RGB.green(): Int = max(1, (this ushr 8) and 0xFF)
-private fun RGB.blue(): Int = max(1, this and 0xFF)
+private fun RGB.red(): Int = (this ushr 16) and 0xFF
+private fun RGB.green(): Int = (this ushr 8) and 0xFF
+private fun RGB.blue(): Int = this and 0xFF
