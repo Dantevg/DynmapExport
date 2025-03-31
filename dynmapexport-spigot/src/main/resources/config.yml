@@ -4,10 +4,6 @@
 # (use localhost for Dynmap running on the same server)
 dynmap-host: localhost:8123
 
-# The minimum fraction of pixels to change within a single Dynmap tile for the
-# export to happen.
-change-treshold: 0.2
-
 # Whether to automatically combine the tiles into a single image.
 # Disabling this can reduce server lag if you encounter it (for large images),
 # but you'll need to combine the tiles yourself.
@@ -16,11 +12,16 @@ auto-combine: true
 # A list of export configurations. Coordinates are in-game block coordinates.
 exports:
 #  - world: world
-#    map: flat
+#    map: surface
 #    zoom: 0
+#    # These thresholds determine whether to keep or discard a new export:
+#    #   area-change-threshold is the minimum fraction of changed pixels.
+#    #   colour-change-threshold is the minimum colour difference of two pixels.
+#    area-change-threshold: 0.1
+#    colour-change-threshold: 0.1
 #    from:
-#      x: -128
-#      z: -128
+#      x: -100
+#      z: -100
 #    to:
-#      x: 128
-#      z: 128
+#      x: 100
+#      z: 100

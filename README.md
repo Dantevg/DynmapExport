@@ -27,8 +27,12 @@ A list of export configurations. Each configuration has the following structure:
 - `world`: the name of the world
 - `map`: the name of the map
 - `zoom`: the zoom-out level, 0 is fully zoomed in.
-- `change-threshold`: The minimum fraction of pixels to change before the
+- `area-change-threshold`: The minimum fraction of pixels to change before the
   automatic export saves the result.
+- `colour-change-threshold`: The minimum difference in colour of two pixels for
+  them to be considered changed. This is especially useful for maps generated
+  by ChunkyMap, since they tend to have lots of unnoticeable changes in noise.
+  Changes in dark colours are weighed heavier than changes in light colours.
 - `from` and `to`: the in-game coordinates that specify the (inclusive) range
   of tiles to export.
   - `x`, `y` and `z`: the in-game block coordinates
