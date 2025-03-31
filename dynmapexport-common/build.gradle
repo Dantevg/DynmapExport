@@ -7,8 +7,8 @@ plugins {
 repositories {}
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1"
-    implementation "org.slf4j:slf4j-api:2.0.13"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3"
+    implementation "org.slf4j:slf4j-api:2.0.16"
     implementation "com.charleskorn.kaml:kaml:${project.kaml_version}"
 
     testImplementation(platform "org.junit:junit-bom:5.10.3")
