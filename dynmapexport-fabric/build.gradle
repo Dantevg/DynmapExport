@@ -1,7 +1,7 @@
 plugins {
 	id "fabric-loom"
 	id "org.jetbrains.kotlin.jvm"
-	id "com.github.johnrengelman.shadow"
+	id "com.gradleup.shadow"
 }
 
 repositories {
@@ -36,7 +36,9 @@ dependencies {
 	shadow(implementation(project ":dynmapexport-common"))
 
 	shadow(implementation "com.charleskorn.kaml:kaml:${project.kaml_version}")
-	modImplementation "net.silkmc:silk-commands:${project.silk_version}"
+//	modImplementation "net.silkmc:silk-commands:${project.silk_version}"
+    modImplementation files("lib/silk-commands-${project.silk_version}.jar")
+    modImplementation files("lib/silk-core-${project.silk_version}.jar")
 }
 
 processResources {
