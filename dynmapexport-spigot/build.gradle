@@ -1,15 +1,17 @@
 plugins {
     id "org.jetbrains.kotlin.jvm"
-    id "kr.entree.spigradle"
+    id "io.typst.spigradle.spigot"
     id "com.gradleup.shadow"
 }
 
 repositories {
-    spigotmc()
+    spigotRepos {
+        spigotmc()
+    }
 }
 
 dependencies {
-    compileOnly(spigot(project.minecraft_version))
+    compileOnly(spigots.spigot.api)
 
     shadow(implementation(project ":dynmapexport-common"))
 }
