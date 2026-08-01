@@ -1,7 +1,7 @@
 # DynmapExport
-This is a Spigot plugin that can automatically export dynmap tiles at a set
-interval. It will only export when at least one tile in an export configuration
-has changed since the last export.
+This is a Spigot plugin and Fabric mod that can automatically export dynmap
+tiles at a set interval. It will only export when at least one tile in an export
+configuration has changed since the last export.
 
 ## Known issues
 - The in-game to tile coordinate conversion is not 100% correct. Should be fine

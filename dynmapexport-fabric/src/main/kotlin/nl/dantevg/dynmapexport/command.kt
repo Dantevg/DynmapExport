@@ -5,12 +5,12 @@ import net.silkmc.silk.core.text.literal
 
 val command = command(DynmapExportMod.MOD_ID) {
 	literal("now") runsAsync {
-		DynmapExportMod.export { source.sendMessage(it.literal) }
+		DynmapExportMod.export { source.sendSystemMessage(it.literal) }
 	}
 	
 	literal("reload") runs {
 		DynmapExportMod.reload()
-		if (source.isExecutedByPlayer) source.sendMessage("Reload complete".literal)
+		if (source.isPlayer) source.sendSystemMessage("Reload complete".literal)
 	}
 	
 	literal("export") {
@@ -29,10 +29,10 @@ val command = command(DynmapExportMod.MOD_ID) {
 								val path: String? = try {
 									DynmapExportMod.downloader.downloadTile(world(), map(), x(), z(), zoom())
 								} catch (e: IllegalArgumentException) {
-									source.sendError(("Could not save tile: " + e.message).literal)
+									source.sendFailure(("Could not save tile: " + e.message).literal)
 									return@runsAsync
 								}
-								source.sendMessage(if (path != null) "Saved tile at $path".literal else "Could not save tile (check console)".literal)
+								source.sendSystemMessage(if (path != null) "Saved tile at $path".literal else "Could not save tile (check console)".literal)
 							}
 						}
 					}
@@ -43,7 +43,7 @@ val command = command(DynmapExportMod.MOD_ID) {
 	
 	literal("purge") {
 		runs {
-			source.sendMessage("Warning: this will permanently delete all but the last export. To confirm, run /${DynmapExportMod.MOD_ID} purge confirm".literal)
+			source.sendSystemMessage("Warning: this will permanently delete all but the last export. To confirm, run /${DynmapExportMod.MOD_ID} purge confirm".literal)
 		}
 		literal("confirm") runs {
 			DynmapExportMod.purge(false)
@@ -51,7 +51,7 @@ val command = command(DynmapExportMod.MOD_ID) {
 		
 		literal("all") {
 			runs {
-				source.sendMessage("Warning: this will permanently delete all exports. To confirm, run /${DynmapExportMod.MOD_ID} purge all confirm".literal)
+				source.sendSystemMessage("Warning: this will permanently delete all exports. To confirm, run /${DynmapExportMod.MOD_ID} purge all confirm".literal)
 			}
 			literal("confirm") runs {
 				DynmapExportMod.purge(true)

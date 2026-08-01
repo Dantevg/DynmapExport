@@ -1,6 +1,6 @@
-main: nl.dantevg.dynmapexport.DynmapExport
+main: nl.dantevg.dynmapexport.DynmapExportPlugin
 name: DynmapExport
-version: ${version} # Filled in automatically by maven
+version: ${version} # Filled in automatically by Gradle
 api-version: 1.13
 description: Export Dynmap images
 author: RedPolygon
